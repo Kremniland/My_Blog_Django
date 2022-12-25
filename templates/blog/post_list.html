@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static blog_tags %}
 
-</body>
-</html>
+{% block title %}
+    {{ title }}
+{% endblock title %}
+{% block content %}
+   <div class="col-md-10">
+       {% for post in posts %}
+        <div class="card">
+          <div class="card-header">
+              Название поста: {{ post.category }}
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Автор: {{ post.author }}</h5>
+            <p class="card-text">{{ post.content|slice:":250" }}</p>
+            <a href="#" class="btn btn-primary">Подробнее</a>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{#    <div >#}
+{#    <h1>{% show_categories %}</h1>#}
+{#    </div>#}
+{##}
+{#    {% get_categories as cats %}#}
+{##}
+{#    {% for category in cats %}#}
+{#        {{ category }} <br>#}
+{#        {% for cat in category.post.all %}#}
+{#            {{ cat }}<br>#}
+{#        {% endfor %}#}
+{#    {% endfor %}#}
+
+{% endblock content %}

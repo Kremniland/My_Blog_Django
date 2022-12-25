@@ -15,8 +15,35 @@ from .models import Category, Post, ContactModel
 from .serializers import PostSerializer
 
 
-def home_page(request):
-    return render(request, 'blog/home_page.html', {'title': 'Домашняя страница'})
+# def home_page(request):
+#     return render(request, 'blog/home_page.html', {'title': 'Домашняя страница'})
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/home_page.html'
+    context_object_name = 'posts'
+    paginate_by = 3
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['title'] = 'Домашняя страница'
+        return context
+
+
+# Вывод списка постов по slug категории
+class PostCatListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    # allow_empty = False
+    paginate_by = 3
+
+    def get_queryset(self):
+        return Post.objects.filter(category__slug=self.kwargs['cat_slug'])
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data()
+        context['title'] = Category.objects.get(slug=self.kwargs['cat_slug'])
+        return context
 
 
 # Обратная связь через форму модели

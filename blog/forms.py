@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User  # Импортируем модель User
 from django import forms
+from captcha.fields import CaptchaField
 
 from .models import ContactModel
 
@@ -39,6 +40,8 @@ class ContactForm(forms.Form):
             }
         )
     )
+    capcha = CaptchaField()
+
 
 
 class LoginForm(AuthenticationForm):

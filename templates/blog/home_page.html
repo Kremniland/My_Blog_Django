@@ -5,18 +5,22 @@
     {{ title }}
 {% endblock title %}
 {% block content %}
+
    <div class="col-md-10">
+       {% for post in posts %}
         <div class="card">
           <div class="card-header">
-            Featured
+              Название поста: {{ post.title }}
           </div>
           <div class="card-body">
-            <h5 class="card-title">Special title treatment</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+            <h5 class="card-title">Автор: {{ post.author }}</h5>
+            <p class="card-text">{{ post.content|slice:":250" }}</p>
+            <a href="#" class="btn btn-primary">Подробнее</a>
           </div>
         </div>
+        {% endfor %}
     </div>
+
 {#    <div >#}
 {#    <h1>{% show_categories %}</h1>#}
 {#    </div>#}

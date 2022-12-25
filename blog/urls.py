@@ -8,8 +8,8 @@ router.register(r'post', PostAPIViewSet)
 
 
 urlpatterns = [
-    path('', home_page, name='home_page'),
-    path('category/<slug:cat_slug>/',   home_page, name='category'),
+    path('', PostListView.as_view(), name='home_page'),
+    path('category/<slug:cat_slug>/',   PostCatListView.as_view(), name='category'),
     path('contact/', contact_email, name='contact'),
     path('regist/', RegisterUser.as_view(), name='regist'),
     path('login/', login_user, name='log in'),

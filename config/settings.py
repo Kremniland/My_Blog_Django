@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', # Для использования стандартной библиотеки авторизации по токенам
     'djoser',
     "debug_toolbar",
+    'captcha',
     # 'rest_framework_swagger',
     'drf_yasg',
 
@@ -129,6 +130,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Here
+MEDIA_URL = '/media/'
+
 STATIC_URL = 'static/'
 # Указываем куда сохранять статику:
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -136,17 +140,30 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'blog/static'),
 ]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication', # Для Djoser
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication' # Для session
+    'DEFAULT_PERMISSION_CLASSES': ( # Кто имеет доступ
+        'rest_framework.permissions.IsAdminUser', # Администратор
+        'rest_framework.permissions.AllowAny', # Все
+    ),
+    'PAGE_SIZE': 10, # Пагинация
+    'DEFAULT_AUTHENTICATION_CLASSES': [ # Аутентификация
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication', # Для JWT регистрации
+        'rest_framework.authentication.TokenAuthentication', # по токену Для Djoser
+        'rest_framework.authentication.BasicAuthentication', # Базовая
+        'rest_framework.authentication.SessionAuthentication' # Для session, например что бы зайти в админку
     ],
+    # Настройка рендера для отправки на фронт и получение на бэк в JSON
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'rest_framework_json_api.renderers.JSONRenderer',
+    #     'rest_framework.renderers.BrowsableAPIRenderer',
+    # ),
+    # 'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
 }
 
 INTERNAL_IPS = [
