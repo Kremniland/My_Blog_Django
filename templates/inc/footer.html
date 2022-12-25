@@ -7,9 +7,11 @@
 
     <ul class="nav col-md-4 justify-content-end">
       <li class="nav-item"><a href="{% url 'home_page' %}" class="nav-link px-2 text-muted">Домашняя страница</a></li>
+
       {% if request.user.is_authenticated %}
         <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link px-2 text-muted">Обратная связь</a></li>
       {% endif %}
+
       <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Pricing</a></li>
       <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
       <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>

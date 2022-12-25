@@ -3,6 +3,7 @@ from .views import *
 
 urlpatterns = [
     path('', home_page, name='home_page'),
+    path('category/<slug:cat_slug>/',   PostListView.as_view(), name='category'),
     path('contact/', contact_email, name='contact'),
     path('regist/', RegisterUser.as_view(), name='regist'),
     path('login/', login_user, name='log in'),

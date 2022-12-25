@@ -29,6 +29,7 @@ class ContactForm(forms.Form):
     # )
     message = forms.CharField(
         label='Текст письма',
+
         widget=forms.Textarea(
             attrs={
                 'class': 'form-control',

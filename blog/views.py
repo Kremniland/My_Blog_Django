@@ -9,7 +9,12 @@ from .models import Category, Post, ContactModel
 
 
 def home_page(request):
-    return render(request, 'blog/home_page.html')
+    return render(request, 'blog/home_page.html', {'title': 'Домашняя страница'})
+
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
 
 
 # Обратная связь
@@ -17,22 +22,8 @@ def home_page(request):
 #     form_class = ContactForm
 #     template_name = 'blog/contact.html'
 #     success_url = '/'
-# def contact_email(request):
-#     if request.method == 'POST':
-#         form = ContactForm(request.POST)
-#         if form.is_valid():
-#             contact_add = ContactModel.objects.create(
-#                 name=form.cleaned_data['name'],
-#                 email=form.cleaned_data['email'],
-#                 message=form.cleaned_data['message'],
-#             )
-#             return redirect('home_page')
-#     else:
-#         form = ContactForm()
-#     context = {'form': form}
-#     return render(request, 'blog/contact.html', context)
-def contact_email(request):
 
+def contact_email(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -46,6 +37,7 @@ def contact_email(request):
         form = ContactForm()
     context = {
         'form': form,
+        'title': 'Обратная связь',
     }
     return render(request, 'blog/contact.html', context)
 
