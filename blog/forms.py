@@ -5,10 +5,11 @@ from django import forms
 from .models import ContactModel
 
 
-# class ContactForm(forms.ModelForm): # Через модель
-#     class Meta:
-#         model = ContactModel
-#         fields = ['name', 'email', 'message']
+class ContactModelForm(forms.ModelForm): # Через модель
+    class Meta:
+        model = ContactModel
+        fields = ['name', 'email', 'message']
+
 
 class ContactForm(forms.Form):
     # name = forms.CharField(
@@ -39,13 +40,14 @@ class ContactForm(forms.Form):
         )
     )
 
-# class LoginForm(AuthenticationForm):
-#     username = forms.CharField(
-#         label='Ваш логин',
-#         widget=forms.TextInput(attrs={'class': 'form-control', }),
-#         min_length=2,
-#     )
-#     password = forms.CharField(
-#         label='Ваш пароль',
-#         widget=forms.PasswordInput(attrs={'class': 'form-control', }),
-#     )
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label='Ваш логин',
+        widget=forms.TextInput(attrs={'class': 'form-control', }),
+        min_length=2,
+    )
+    password = forms.CharField(
+        label='Ваш пароль',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', }),
+    )

@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', # Для использования стандартной библиотеки авторизации по токенам
     'djoser',
     "debug_toolbar",
+    # 'rest_framework_swagger',
+    'drf_yasg',
 
     'blog',
 ]
