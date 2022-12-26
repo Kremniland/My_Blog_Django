@@ -10,7 +10,7 @@ class Post(models.Model):
     author = models.ForeignKey(
         User,
         related_name="posts",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     image = models.ImageField(upload_to='media', blank=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -21,6 +21,9 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'post_id': self.pk})
 
     class Meta:
         verbose_name = 'Пост'

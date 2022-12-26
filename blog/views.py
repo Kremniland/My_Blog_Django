@@ -10,14 +10,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 
-from .forms import ContactForm, ContactModelForm
+from .forms import ContactForm, ContactModelForm, PostCreateModelForm
 from .models import Category, Post, ContactModel
 from .serializers import PostSerializer
 
 
-# def home_page(request):
-#     return render(request, 'blog/home_page.html', {'title': 'Домашняя страница'})
 class PostListView(ListView):
+    '''Домашняя страница со всеми постами всех категорий'''
     model = Post
     template_name = 'blog/home_page.html'
     context_object_name = 'posts'
@@ -29,8 +28,8 @@ class PostListView(ListView):
         return context
 
 
-# Вывод списка постов по slug категории
 class PostCatListView(ListView):
+    '''Вывод списка постов по slug категории'''
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
@@ -46,14 +45,29 @@ class PostCatListView(ListView):
         return context
 
 
-# Обратная связь через форму модели
+class PostDetailView(DetailView):
+    '''Детализация поста'''
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+    pk_url_kwarg = 'post_id'
+
+
+class PostCreateView(CreateView):
+    model = Post
+    form_class = PostCreateModelForm
+    template_name = 'blog/post_create.html'
+    success_url = reverse_lazy('home_page')
+
+
 # class ContactCreate(CreateView):
+#     '''Обратная связь через форму модели'''
 #     form_class = ContactModelForm
 #     template_name = 'blog/contact.html'
 #     success_url = '/'
 
-# Обратная связь через собственную форму
 def contact_email(request):
+    '''Обратная связь через собственную форму'''
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -61,7 +75,7 @@ def contact_email(request):
                 name=request.user,
                 email=request.user.email,
                 message=form.cleaned_data['message'],
-                )
+            )
             return redirect('home_page')
     else:
         form = ContactForm()
@@ -72,8 +86,8 @@ def contact_email(request):
     return render(request, 'blog/contact.html', context)
 
 
-# Регистрация через класс:
 class RegisterUser(CreateView):
+    '''Регистрация через класс:'''
     form_class = UserCreationForm  # Стандартная форма регистрации
     template_name = 'auth/registr.html'
     success_url = reverse_lazy('home_page')
@@ -84,10 +98,10 @@ class RegisterUser(CreateView):
         return context
 
 
-# Авторизация
 def login_user(request):
+    '''Авторизация'''
     if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST) # Стандартная форма
+        form = AuthenticationForm(data=request.POST)  # Стандартная форма
         # form = LoginForm(data=request.POST) # Через собственную форму
         if form.is_valid():
             user = form.get_user()
@@ -106,17 +120,20 @@ def logout_user(request):
 
 
 # API
-class PostListCreateApiView(ListCreateAPIView): # Просмотр и добавление через модель в сериалайзер
+class PostListCreateApiView(ListCreateAPIView):
+    '''Просмотр и добавление'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
 
 class PostUpdateAPIView(UpdateAPIView):
+    '''Изменение'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
 
 class PostDestroyAPIView(DestroyAPIView):
+    '''Удаление'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
@@ -125,7 +142,8 @@ class PostAPIViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    @action(methods=['get'], detail=False) # если False - выведет список, если True - одну
+    # Добавит вывод кнопку action списка категорий
+    @action(methods=['get'], detail=False)  # если False - выведет список, если True - одну
     def category(self, request):
         cats = Category.objects.all()
         return Response({'cats': [c.title for c in cats]})

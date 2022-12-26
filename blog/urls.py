@@ -9,6 +9,8 @@ router.register(r'post', PostAPIViewSet)
 
 urlpatterns = [
     path('', PostListView.as_view(), name='home_page'),
+    path('post/<int:post_id>/', PostDetailView.as_view(), name='post_detail'),
+    path('post/create/', PostCreateView.as_view(), name='post_create'),
     path('category/<slug:cat_slug>/',   PostCatListView.as_view(), name='category'),
     path('contact/', contact_email, name='contact'),
     path('regist/', RegisterUser.as_view(), name='regist'),

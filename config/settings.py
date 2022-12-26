@@ -151,7 +151,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAdminUser', # Администратор
         'rest_framework.permissions.AllowAny', # Все
     ),
-    'PAGE_SIZE': 10, # Пагинация
+    # 'PAGE_SIZE': 10, # Пагинация
     'DEFAULT_AUTHENTICATION_CLASSES': [ # Аутентификация
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication', # Для JWT регистрации
         'rest_framework.authentication.TokenAuthentication', # по токену Для Djoser

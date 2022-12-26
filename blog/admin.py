@@ -20,3 +20,5 @@ class PostAdmin(admin.ModelAdmin):
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['name', 'email', 'create_date']
 
+
+
