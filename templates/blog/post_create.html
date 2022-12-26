@@ -5,8 +5,7 @@
     {{ post.title }}
 {% endblock title %}
 {% block content %}
-   <div class="col-md-10">
-        <div class="card">
+   <div class="col-md-9">
             <form method="post">
             {% csrf_token %}
             {% for field in form %}
@@ -17,6 +16,5 @@
             {% endfor %}
             <button type="submit" class="btn btn-success btn-lg">Добавить</button>
             </form>
-        </div>
     </div>
 {% endblock content %}

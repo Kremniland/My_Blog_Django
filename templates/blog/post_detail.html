@@ -17,6 +17,10 @@
             {% endif %}
             <p class="card-text">{{ post.content }}</p>
             <p class="card-text">{{ post.update_date|date:"d:M:Y" }}</p>
+              <form action="{% url 'post_delete' post.id %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-success btn-lg">удалить</button>
+              </form>
             <a href="{%  url 'home_page' %}" class="btn btn-primary">Главная страница</a>
           </div>
         </div>

@@ -9,7 +9,7 @@ from .models import ContactModel, Post
 class PostCreateModelForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image', 'publisher', 'author']
+        fields = ['title', 'content', 'image']
         widgets = {
             'title': forms.TextInput(
                 attrs={
@@ -36,10 +36,20 @@ class PostCreateModelForm(forms.ModelForm):
 
 
 class ContactModelForm(forms.ModelForm):
-    '''Контактная форма через модель'''
+    '''Контактная форма через модель с капчой'''
+    captcha = CaptchaField()
+
     class Meta:
         model = ContactModel
-        fields = ['name', 'email', 'message']
+        fields = ['message']
+        widgets = {
+            'message': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 7,
+                }
+            ),
+        }
 
 
 class ContactForm(forms.Form):
@@ -71,18 +81,20 @@ class ContactForm(forms.Form):
             }
         )
     )
-    capcha = CaptchaField()
+    captcha = CaptchaField()
 
 
-
-class LoginForm(AuthenticationForm):
+class LoginForm(AuthenticationForm, forms.ModelForm):
     '''Форма для авторизации'''
-    username = forms.CharField(
-        label='Ваш логин',
-        widget=forms.TextInput(attrs={'class': 'form-control', }),
-        min_length=2,
-    )
-    password = forms.CharField(
-        label='Ваш пароль',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', }),
-    )
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+    # username = forms.CharField(
+    #     label='Ваш логин',
+    #     widget=forms.TextInput(attrs={'class': 'form-control', }),
+    #     min_length=2,
+    # )
+    # password = forms.CharField(
+    #     label='Ваш пароль',
+    #     widget=forms.PasswordInput(attrs={'class': 'form-control', }),
+    # )
