@@ -6,7 +6,7 @@ from captcha.fields import CaptchaField
 from .models import ContactModel, Post
 
 
-class PostCreateModelForm(forms.ModelForm):
+class PostModelForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'image']

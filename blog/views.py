@@ -1,6 +1,12 @@
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+
+from django.contrib import messages
+
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
@@ -11,9 +17,25 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 
-from .forms import ContactForm, ContactModelForm, PostCreateModelForm, LoginForm
+from .forms import ContactForm, ContactModelForm, PostModelForm, LoginForm
 from .models import Category, Post, ContactModel
 from .serializers import PostSerializer
+
+
+class CustomSuccessMessageMixin:
+    @property
+    def success_msg(self):
+        return False
+
+    def form_valid(self, form):
+        '''Метод для вывода messages'''
+        messages.success(self.request, self.success_msg)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        '''Метод для передачи в адресную строку GET
+        запросом id поста для подсвечивания его на странице'''
+        return f'{self.success_url}?id={self.object.id}'
 
 
 class PostListView(ListView):
@@ -28,6 +50,9 @@ class PostListView(ListView):
         context['title'] = 'Домашняя страница'
         return context
 
+    def get_queryset(self):
+        return Post.objects.all().order_by('-update_date')
+
 
 class PostCatListView(ListView):
     '''Вывод списка постов по slug категории'''
@@ -38,7 +63,7 @@ class PostCatListView(ListView):
     paginate_by = 3
 
     def get_queryset(self):
-        return Post.objects.filter(category__slug=self.kwargs['cat_slug'])
+        return Post.objects.filter(category__slug=self.kwargs['cat_slug']).order_by('-update_date')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
@@ -54,35 +79,73 @@ class PostDetailView(DetailView):
     pk_url_kwarg = 'post_id'
 
 
-class PostCreateView(CreateView):
+class PostCreateView(CustomSuccessMessageMixin, LoginRequiredMixin, CreateView):
     '''Создание поста'''
+    # login_url = '/login/' # Можно прописать в settings LOGIN_URL = '/login/'
     model = Post
-    form_class = PostCreateModelForm
+    form_class = PostModelForm
     template_name = 'blog/post_create.html'
     success_url = reverse_lazy('home_page')
+    success_msg = 'Запись создана'
 
     def form_valid(self, form):
         '''Добавляем в форму недостающие поля user и publisher'''
-        instance = form.save(commit=False)
+        instance = form.save(commit=False) # Создаем объект но не сохраняем его
         instance.author = self.request.user
         instance.publisher = True
         instance.save()
-        return redirect(self.success_url)
+        return super().form_valid(form)
+        # return redirect(self.success_url)
 
 
-class PostDelete(DeleteView):
+class PostDelete(CustomSuccessMessageMixin, LoginRequiredMixin, DeleteView):
     '''Удаление поста'''
     model = Post
     template_name = 'blog/post_detail.html' # Шаблон тот же что и для создания
     pk_url_kwarg = 'post_id'
     success_url = reverse_lazy('home_page')
+    success_msg = 'Запись удалена'
 
 
-class ContactCreate(CreateView):
+# НЕ РАБОТАЕТ МЕТОД ПЕРЕОПРЕДЕЛЕНИЯ ДЛЯ УДАЛЕНИЯ ТОЛЬКО АВТОРУ
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.request.user != self.object.author:
+            return self.handle_no_permission()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
+
+
+class PostUpdateView(CustomSuccessMessageMixin, LoginRequiredMixin, UpdateView):
+    model = Post
+    template_name = 'blog/post_update.html'
+    form_class = PostModelForm
+    success_url = reverse_lazy('home_page')
+    success_msg = 'Запись изменена'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Редактирование поста'
+        return context
+
+    def get_form_kwargs(self):
+        '''Если зарегистрированный пользователь не автор поста выцдаст 403'''
+        kwargs = super().get_form_kwargs()
+        # instance - объект модели Post
+        print(kwargs['instance'].author) # Выведет author редактируемого поля модели пост
+        print(self.request.user) # Залогиненый(на сайте) пользователь
+        if self.request.user != kwargs['instance'].author:
+            return self.handle_no_permission()
+        return kwargs
+
+
+class ContactCreate(CustomSuccessMessageMixin, CreateView):
     '''Обратная связь через класс'''
     form_class = ContactModelForm
     template_name = 'blog/contact.html'
     success_url = '/'
+    success_msg = 'Запись отправлена'
 
     def form_valid(self, form):
         '''Добавляем в форму недостающие поля user и email'''
@@ -128,7 +191,7 @@ class MyLogoutView(LogoutView):
     next_page = reverse_lazy('home_page')
 
 
-# API
+# =========================== API ===============================================
 class PostListCreateApiView(ListCreateAPIView):
     '''Просмотр и добавление'''
     queryset = Post.objects.all()
@@ -158,7 +221,7 @@ class PostAPIViewSet(viewsets.ModelViewSet):
         return Response({'cats': [c.title for c in cats]})
 
 
-# =============================================================================
+# ============================ Методы =================================================
 def contact_email(request):
     '''Обратная связь через метод'''
     if request.method == 'POST':

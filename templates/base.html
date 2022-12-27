@@ -19,6 +19,22 @@
 {% block auth %}
 {% endblock auth %}
 
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
 <div class="row">
     <div class="col-md-2">
         <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 290px; height: 650px;">

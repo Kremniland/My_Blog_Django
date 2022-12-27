@@ -9,7 +9,7 @@
    <div class="col-md-10">
        {% for post in posts %}
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" {% if post.id|slugify == request.GET.id %} style="background: red" {%  endif %}>
               Название поста: {{ post.title }}
           </div>
           <div class="card-body">

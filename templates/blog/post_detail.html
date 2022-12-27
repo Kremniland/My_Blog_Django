@@ -13,14 +13,27 @@
           <div class="card-body">
             <h5 class="card-title">Автор: {{ post.author }}</h5>
             {% if post.image %}
-              <img src="{{ post.image.url }}">
+              <img src="{{ post.image.url }}" alt="">
             {% endif %}
             <p class="card-text">{{ post.content }}</p>
             <p class="card-text">{{ post.update_date|date:"d:M:Y" }}</p>
-              <form action="{% url 'post_delete' post.id %}" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-success btn-lg">удалить</button>
-              </form>
+          {% if post.author == request.user %}
+                <a href="{% url 'post_update' post.pk %}" type="button"
+                            class="btn btn-sm btn-outline-secondary">Редактировать</a>
+{#При нажатии на кнопку удалить - выведет сообщение для подтверждения:#}
+                      <form id="delete_form" action="{% url 'post_delete' post.id %}" method="post">
+                          {% csrf_token %}
+                      </form>
+                      <a href="javascript:void()" onclick="delete_question()">Удалить</a>
+                      <script>
+                          function delete_question() {
+                              if (confirm("Вы уверены?")) {
+                                  document.getElementById("delete_form").submit()
+                              }
+                          }
+                      </script>
+
+          {% endif %}
             <a href="{%  url 'home_page' %}" class="btn btn-primary">Главная страница</a>
           </div>
         </div>
