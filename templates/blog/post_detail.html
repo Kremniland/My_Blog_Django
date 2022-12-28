@@ -24,7 +24,9 @@
                       <form id="delete_form" action="{% url 'post_delete' post.id %}" method="post">
                           {% csrf_token %}
                       </form>
-                      <a href="javascript:void()" onclick="delete_question()">Удалить</a>
+
+                      <a href="javascript:void()" onclick="delete_question()" type="button"
+                         class="btn btn-sm btn-outline-secondary">Удалить</a> <br>
                       <script>
                           function delete_question() {
                               if (confirm("Вы уверены?")) {
@@ -37,5 +39,30 @@
             <a href="{%  url 'home_page' %}" class="btn btn-primary">Главная страница</a>
           </div>
         </div>
+        <h4>Комментарии: {{ post.comments_post.count }}</h4>
+
+       <ul>
+           {% for comment in post.comments_post.all %}
+                <li>
+                    Дата написания: {{ comment.create_date }} <br>
+                    Автор: {{ comment.author }} <br>
+                    Статус: {{ comment.status }} <br>
+                    Текст: <br>
+                    {{ comment.text }}
+                </li>
+            {% endfor %}
+       </ul>
+
+        <hr>
+        <h5>Добавить комментарий:</h5>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+
+
     </div>
+    </div>
+
 {% endblock content %}

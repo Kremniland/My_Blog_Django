@@ -1,15 +1,18 @@
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
-
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, HttpResponse
+from django.urls import reverse, reverse_lazy
 
 from django.contrib import messages
 
-from django.shortcuts import render, redirect
-from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
+# Для добавления формы DetailView
+from django.views.generic.edit import FormMixin
+
 
 from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework import viewsets
@@ -17,12 +20,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 
-from .forms import ContactForm, ContactModelForm, PostModelForm, LoginForm
-from .models import Category, Post, ContactModel
+from .forms import ContactForm, ContactModelForm, PostModelForm, LoginForm, CommentForm
+from .models import Category, Post, ContactModel, Comments
 from .serializers import PostSerializer
 
 
 class CustomSuccessMessageMixin:
+    '''Кастомный класс для работы с messages'''
     @property
     def success_msg(self):
         return False
@@ -71,12 +75,37 @@ class PostCatListView(ListView):
         return context
 
 
-class PostDetailView(DetailView):
-    '''Детализация поста'''
+class PostDetailView(CustomSuccessMessageMixin, FormMixin, DetailView):
+    '''Детализация поста порядок наследования классов важен! при изменении
+    порядка наследованиямогут не работать некоторые ф-ии!'''
     model = Post
     template_name = 'blog/post_detail.html'
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
+    # Из класса FormMixin добавляем форму для комментариев на страницу детализации
+    form_class = CommentForm
+    # Выведет сообщение при успешном создании необходим кастомный класс CustomSuccessMessageMixin
+    success_msg = 'Комментарий создан'
+
+    def get_success_url(self, **kwargs):
+        '''При успешном создании коментария переводим на страницу детализации поста'''
+        return reverse_lazy('post_detail', kwargs={'post_id': self.get_object().id})
+
+    def post(self, reqest, *args, **kwargs):
+        '''Переопределяем метод для проверки form поста'''
+        form = self.get_form() # Берем форму из get_form()
+        if form.is_valid:
+            return self.form_valid(form) # Если форма валидна отправляем ее в переопределенный ниже метод form_valid
+        else:
+            return self.form_invalid(form) # Если не валидна в form_invalid
+
+    def form_valid(self, form):
+        ''' Переопределяем метод для добавления недостающих полей в форму комментария'''
+        self.object = form.save(commit=False)
+        self.object.post = self.get_object()
+        self.object.author = self.request.user
+        self.object.save()
+        return super().form_valid(form)
 
 
 class PostCreateView(CustomSuccessMessageMixin, LoginRequiredMixin, CreateView):
@@ -86,6 +115,7 @@ class PostCreateView(CustomSuccessMessageMixin, LoginRequiredMixin, CreateView):
     form_class = PostModelForm
     template_name = 'blog/post_create.html'
     success_url = reverse_lazy('home_page')
+    # Используем success_msg из класса CustomSuccessMessageMixin
     success_msg = 'Запись создана'
 
     def form_valid(self, form):
@@ -109,6 +139,7 @@ class PostDelete(CustomSuccessMessageMixin, LoginRequiredMixin, DeleteView):
 
 # НЕ РАБОТАЕТ МЕТОД ПЕРЕОПРЕДЕЛЕНИЯ ДЛЯ УДАЛЕНИЯ ТОЛЬКО АВТОРУ
     def delete(self, request, *args, **kwargs):
+        print('priveeeeeeeeeeeeeeeeeeetttttttttttt')
         self.object = self.get_object()
         if self.request.user != self.object.author:
             return self.handle_no_permission()
@@ -155,7 +186,7 @@ class ContactCreate(CustomSuccessMessageMixin, CreateView):
         instance.save()
         return redirect(self.success_url)
 
-
+# ============================= Регистрация ==============================
 class RegisterUser(CreateView):
     '''Регистрация через класс:'''
     form_class = UserCreationForm  # Стандартная форма регистрации

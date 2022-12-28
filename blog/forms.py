@@ -3,7 +3,21 @@ from django.contrib.auth.models import User  # Импортируем модел
 from django import forms
 from captcha.fields import CaptchaField
 
-from .models import ContactModel, Post
+from .models import ContactModel, Post, Comments
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comments
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(
+                attrs={
+                    'class': 'form-control',
+                    'rows': 5,
+                }
+            )
+        }
 
 
 class PostModelForm(forms.ModelForm):
@@ -19,6 +33,7 @@ class PostModelForm(forms.ModelForm):
             'content': forms.Textarea(
                 attrs={
                     'class': 'form-control',
+                    'rows': 7,
                 }
             ),
             # 'image': forms.ImageField(),

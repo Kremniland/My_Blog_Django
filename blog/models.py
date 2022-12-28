@@ -60,3 +60,26 @@ class ContactModel(models.Model):
         verbose_name_plural = 'Сообщения'
 
 
+class Comments(models.Model):
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='comments_post',
+        verbose_name='Комментарии'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        verbose_name='Автор комментария'
+    )
+    create_date = models.DateTimeField(auto_now=True, verbose_name='Дата написания')
+    text = models.TextField(verbose_name='Текст комментария')
+    status = models.BooleanField(default=False, verbose_name='Видимость комментария')
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
