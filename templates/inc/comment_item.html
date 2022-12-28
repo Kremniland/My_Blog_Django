@@ -1,0 +1,16 @@
+{% if status_comment %}
+    <div class="alert alert-success">
+       {{status_comment}}
+    </div>
+{% endif %}
+    Дата написания: {{ item.create_date }} <br>
+    Автор: {{ item.author }} <br>
+    Статус: {{ item.status }} <br>
+    Текст: <br>
+    {{ item.text }}
+    <br>
+ {% if post.author == request.user %}
+        <a class="update_status" data-url="{% url 'update_comment_status' item.id 'public' %}" href="#">Опубликовать</a> /
+        <a class="update_status" data-url="{% url 'update_comment_status' item.id 'delete' %}" href="#">Удалить</a>
+ {% endif %}
+

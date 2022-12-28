@@ -10,9 +10,10 @@ from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 
 from django.views.generic import ListView, DetailView, CreateView, DeleteView, UpdateView
-# Для добавления формы DetailView
+# Для переопределения что бы добавить форму для комментариев в класс DetailView
 from django.views.generic.edit import FormMixin
 
+from django.template import Context, Template
 
 from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework import viewsets
@@ -106,6 +107,29 @@ class PostDetailView(CustomSuccessMessageMixin, FormMixin, DetailView):
         self.object.author = self.request.user
         self.object.save()
         return super().form_valid(form)
+
+
+def update_comment_status(request, pk, type):
+    item = Comments.objects.get(pk=pk)
+    # Если user не post.author просто выведет надпись, а удаления или публикации не будет
+    if request.user != item.post.author:
+        return HttpResponse('deny')
+
+    if type == 'public':
+        import operator # Для того что бы инверсировать status
+        item.status = operator.not_(item.status)
+        item.save()
+        template = 'inc/comment_item.html'
+        context = {'item': item, 'status_comment': 'Комментарий опубликован'}
+        return render(request, template, context)
+
+    elif type == 'delete':
+        item.delete()
+        return HttpResponse('''
+        <div class="alert alert-success">
+        Комментарий удален
+        </div>
+        ''')
 
 
 class PostCreateView(CustomSuccessMessageMixin, LoginRequiredMixin, CreateView):

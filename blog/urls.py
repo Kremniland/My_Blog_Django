@@ -14,6 +14,10 @@ urlpatterns = [
     path('post/create/', PostCreateView.as_view(), name='post_create'),
     path('post/update/<int:pk>/', PostUpdateView.as_view(), name='post_update'),
 
+    # ajax
+    path('update_comment_status/<int:pk>/<slug:type>', update_comment_status, name='update_comment_status'),
+
+
     path('category/<slug:cat_slug>/',   PostCatListView.as_view(), name='category'),
 
     path('contact/', ContactCreate.as_view(), name='contact'),
