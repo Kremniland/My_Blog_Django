@@ -39,6 +39,7 @@
             <a href="{%  url 'home_page' %}" class="btn btn-primary">Главная страница</a>
           </div>
         </div>
+   {% if request.user == is_authenticated %}
         <h4>Комментарии: {{ post.comments_post.count }}</h4>
 
        <ul>
@@ -60,7 +61,7 @@
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Добавить</button>
         </form>
-
+   {% endif %}
 
     </div>
     </div>

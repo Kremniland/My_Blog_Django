@@ -1,7 +1,18 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 
 from django.urls import reverse
+
+from .middleware import get_current_user # Теперь при обращении к этой ф-ии можем получать user
+
+
+class StatusFilter(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            Q(status=False, author=get_current_user()) | # Если user автор КОММЕНТАРИЯ видит все СВОИ(False,True)
+            Q(status=False, post__author=get_current_user()) | # Если user автор ПОСТА видит вообще все комментарии
+            Q(status=True)) # Если пользователь не автор ни комментариев ни поста видит только True
 
 
 class Post(models.Model):
@@ -79,6 +90,8 @@ class Comments(models.Model):
     create_date = models.DateTimeField(auto_now=True, verbose_name='Дата написания')
     text = models.TextField(verbose_name='Текст комментария')
     status = models.BooleanField(default=False, verbose_name='Видимость комментария')
+
+    objects = StatusFilter()
 
     class Meta:
         verbose_name = 'Комментарий'
