@@ -31,6 +31,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('captcha/', include('captcha.urls')),
     path('', include('blog.urls')),
+    path('email/', include('mailcontact.urls')),
 ]
 
 # Для статики:
