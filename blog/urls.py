@@ -38,6 +38,8 @@ urlpatterns = [
     path('api/v1/postdetail/<int:pk>/', PostUpdateAPIView.as_view()),
 # Удаление записи через DestroyAPIView
     path('api/v1/postdestroy/<int:pk>/', PostDestroyAPIView.as_view()),
+# Вывод постов по категориям
+    path('api/v1/category/<int:pk>/', PostByCategoryAPIView.as_view()),
 
     path('viewset/', include(router.urls)),
 

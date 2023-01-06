@@ -15,8 +15,9 @@ from django.views.generic.edit import FormMixin
 
 from django.template import Context, Template
 
-from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView, GenericAPIView
 from rest_framework import viewsets
+from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
@@ -111,6 +112,7 @@ class PostDetailView(CustomSuccessMessageMixin, FormMixin, DetailView):
 
 def update_comment_status(request, pk, type):
     item = Comments.objects.get(pk=pk)
+    request.set_cookie(item.pk, 'test_cookie')
     # Если user не post.author просто выведет надпись, а удаления или публикации не будет
     if request.user != item.post.author:
         return HttpResponse('deny')
@@ -247,26 +249,38 @@ class MyLogoutView(LogoutView):
 
 
 # =========================== API ===============================================
+class PostByCategoryAPIView(ListModelMixin, GenericAPIView):
+    '''Вывод постов по категориям'''
+    serializer_class = PostSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Post.objects.filter(category=pk)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
 class PostListCreateApiView(ListCreateAPIView):
-    '''Просмотр и добавление'''
+    '''Просмотр и добавление постов'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
 
 class PostUpdateAPIView(UpdateAPIView):
-    '''Изменение'''
+    '''Изменение постов'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
 
 class PostDestroyAPIView(DestroyAPIView):
-    '''Удаление'''
+    '''Удаление постов'''
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
 
 class PostAPIViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().prefetch_related('category')
     serializer_class = PostSerializer
 
     # Добавит вывод кнопку action списка категорий
