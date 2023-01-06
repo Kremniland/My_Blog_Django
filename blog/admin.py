@@ -1,6 +1,15 @@
 from django.contrib import admin
 
+from django.utils.safestring import mark_safe
+
 from .models import Category, Post, ContactModel, Comments
+
+
+class PostInline(admin.StackedInline):
+    '''Добавление и вывод коментариев к постам в админке '''
+    model = Comments
+    extra = 3
+
 
 
 @admin.register(Category)
@@ -11,9 +20,17 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'author', 'create_date', 'update_date', 'publisher']
+    list_display = ['title', 'author', 'image_show', 'create_date', 'update_date', 'publisher']
     list_display_links = ['title']
     list_filter = ['publisher']
+    inlines = [PostInline]
+
+    def image_show(self, obj):
+        '''Вывод маленькой картинки в админке'''
+        if obj.image:
+            return mark_safe("<img src='{}' width='60' />".format(obj.image.url))
+        return None
+
 
 
 @admin.register(ContactModel)

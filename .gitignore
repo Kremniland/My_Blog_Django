@@ -22,6 +22,8 @@ __pycache__/
 !*media/.gitkeep
 media/*
 
+static/*
+
 log/debug.log
 *.log
 
@@ -30,3 +32,4 @@ doc
 home.rst
 make.bat
 Makefile
+/static/

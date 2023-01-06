@@ -178,3 +178,17 @@ EMAIL_HOST_USER = 'chausovo@mail.ru' # Почта отправителя
 EMAIL_HOST_PASSWORD = KEY_MAIL # Пароль для внешнего приложения
 EMAIL_USE_TLS = False # Шифрование TSL
 EMAIL_USE_SSL = True # Шифрование SSL
+
+# Для вывода ORM запросов в консоль
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
+            }
+        }
+}
